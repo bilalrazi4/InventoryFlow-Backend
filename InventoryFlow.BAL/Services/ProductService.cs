@@ -29,10 +29,13 @@ namespace InventoryFlow.Service.Services
                 {
                     obj.CreatedAt = DateTime.Now;
                     obj.IsActive = true;
+                    //obj.createedBy
                     await _uowProduct.Repository.InsertAsync(obj);
                 }
                 else
                 {
+                    obj.UpdatedAt = DateTime.Now;
+                    //obj.updatedBy
                     await _uowProduct.Repository.InsertAsync(obj);
                     _uowProduct.Repository.Update(obj);
                 }
@@ -50,7 +53,7 @@ namespace InventoryFlow.Service.Services
         {
             try
             {
-                var products = await _uowProduct.Repository.GetALL().ToListAsync();
+                var products = await _uowProduct.Repository.GetALL(x=>x.IsActive==true).ToListAsync();
                 var obj = _mapper.Map<List<ProductDTO>>(products);
                 return obj;
             }
@@ -63,7 +66,8 @@ namespace InventoryFlow.Service.Services
         {
             try
             {
-                var product = await _uowProduct.Repository.GetById(ProductId);
+                
+                var product = await _uowProduct.Repository.GetALL(x=>x.IsActive==true && x.Id==ProductId).FirstOrDefaultAsync();
                 var obj = _mapper.Map<ProductDTO>(product);
                 return obj;
             }
@@ -81,7 +85,7 @@ namespace InventoryFlow.Service.Services
                 var product = await _uowProduct.Repository.GetById(ProductId);
                 if (product != null)
                 {
-                    _uowProduct.Repository.Delete(product);
+                    product.IsActive = false;
                     await _uowProduct.SaveAsync();
                     return true;
                 }
