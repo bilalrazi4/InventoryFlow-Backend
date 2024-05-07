@@ -37,15 +37,19 @@ namespace InventoryFlow.Service.Services
                     };
                 }
                 //check if active stock with same product exist.. return if it already exists
-                var existingStockWithProduct = await _uowStock.Repository.GetALL(existingItem => existingItem.ProductId== stock.ProductId && existingItem.IsActive == true).FirstOrDefaultAsync();
-                if (existingStockWithProduct !=null)
+                if (stock.Id == 0)
                 {
-                    return new ResponseDTO<StockDTO>
+                    var existingStockWithProduct = await _uowStock.Repository.GetALL(existingItem => existingItem.ProductId == stock.ProductId && existingItem.IsActive == true).FirstOrDefaultAsync();
+                    if (existingStockWithProduct != null)
                     {
-                        Status = false,
-                        Message = "Stock with this product already exist, Please update the product",
-                    };
+                        return new ResponseDTO<StockDTO>
+                        {
+                            Status = false,
+                            Message = "Stock with this product already exist, Please update the product",
+                        };
+                    }
                 }
+                
 
                 //this is to update the existing stock 
                 var existingStock = await _uowStock.Repository.GetById(stock.Id);

@@ -2,6 +2,7 @@
 using InventoryFlow.Domain.DTO_s.ResponseDTO_s;
 using InventoryFlow.Domain.DTO_s.StockDto_s;
 using InventoryFlow.Service.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace InventoryFlow.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StockApiController : ControllerBase
     {
         private readonly StockService _stockService;
