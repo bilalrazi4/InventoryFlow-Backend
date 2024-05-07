@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace InventoryFlow.Domain.DbModels;
 
-public partial class Vendor
+public partial class Category
 {
     public int Id { get; set; }
 
-    public string VendorName { get; set; } = null!;
+    public string CategoryName { get; set; } = null!;
 
     public DateTime? CreatedAt { get; set; }
 

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryFlow.Domain.DbModels;
@@ -29,6 +27,8 @@ public partial class HfinventoryFlowContext : DbContext
 
     public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; }
 
+    public virtual DbSet<Category> Categories { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<Stock> Stocks { get; set; }
@@ -37,7 +37,7 @@ public partial class HfinventoryFlowContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=172.16.15.5;Database=HFInventoryFlow;Encrypt=false;TrustServerCertificate=true;user id=rovaid;password=asd@123");
+        => optionsBuilder.UseSqlServer("Server=172.16.15.5;Database=HFInventoryFlow;Encrypt=false;TrustServerCertificate=true;user id=rovaid;password=asd@123;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -108,6 +108,17 @@ public partial class HfinventoryFlowContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
         });
 
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.ToTable("Category");
+
+            entity.Property(e => e.CategoryName).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.CreatedBy).HasMaxLength(128);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedBy).HasMaxLength(128);
+        });
+
         modelBuilder.Entity<Product>(entity =>
         {
             entity.ToTable("Product");
@@ -128,6 +139,7 @@ public partial class HfinventoryFlowContext : DbContext
             entity.Property(e => e.CreatedBy).HasMaxLength(128);
             entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
             entity.Property(e => e.ManufacturingDate).HasColumnType("datetime");
+            entity.Property(e => e.Quantity).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.Rate).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.UpdatedBy).HasMaxLength(128);
@@ -141,9 +153,7 @@ public partial class HfinventoryFlowContext : DbContext
             entity.Property(e => e.CreatedBy).HasMaxLength(128);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.UpdatedBy).HasMaxLength(128);
-            entity.Property(e => e.Vendor1)
-                .HasMaxLength(500)
-                .HasColumnName("Vendor");
+            entity.Property(e => e.VendorName).HasMaxLength(500);
         });
 
         OnModelCreatingPartial(modelBuilder);

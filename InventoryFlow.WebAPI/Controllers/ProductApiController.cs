@@ -1,11 +1,7 @@
-﻿using AutoMapper;
-using InventoryFlow.Domain.DbModels;
-using InventoryFlow.Domain.DTO_s.ProductDTO_s;
+﻿using InventoryFlow.Domain.DTO_s.ProductDTO_s;
 using InventoryFlow.Domain.DTO_s.ResponseDTO_s;
-using InventoryFlow.Domain.Repositories;
 using InventoryFlow.Service.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryFlow.Controllers
@@ -47,7 +43,7 @@ namespace InventoryFlow.Controllers
 
 
         [HttpGet]
-        [Route("GetProductById")]
+        [Route("GetProductById/{ProductId}")]
         public async Task<IActionResult> GetProductById(int ProductId)
         {
             var obj = await _productService.GetById(ProductId);

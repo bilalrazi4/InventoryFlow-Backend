@@ -18,6 +18,7 @@ namespace InventoryFlow.Domain.Repositories
             this.dbSet = context.Set<TEntity>();
         }
 
+
         public virtual IQueryable<TEntity> GetALL(
             Expression<Func<TEntity, bool>> filter = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
@@ -90,6 +91,7 @@ namespace InventoryFlow.Domain.Repositories
         public virtual void Update(TEntity entityToUpdate)
         {
             dbSet.Attach(entityToUpdate);
+            
             context.Entry(entityToUpdate).State = EntityState.Modified;
         }
 

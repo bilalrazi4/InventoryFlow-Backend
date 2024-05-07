@@ -11,9 +11,11 @@ public partial class Stock
 
     public int VendorId { get; set; }
 
+    public int CategoryId { get; set; }
+
     public string? Batch { get; set; }
 
-    public int? Quantity { get; set; }
+    public decimal? Quantity { get; set; }
 
     public decimal? Rate { get; set; }
 
@@ -30,4 +32,6 @@ public partial class Stock
     public string? UpdatedBy { get; set; }
 
     public bool? IsActive { get; set; }
+
+    public bool InStock { get; set; }
 }

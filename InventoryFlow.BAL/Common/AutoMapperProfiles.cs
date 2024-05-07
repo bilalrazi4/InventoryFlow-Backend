@@ -1,7 +1,9 @@
-﻿using InventoryFlow.Domain.DbModels;
+﻿using InventoryFlow.Domain.DTO_s.CategoryDTO_s;
 using InventoryFlow.Domain.DTO_s.ProductDTO_s;
+using InventoryFlow.Domain.DTO_s.StockDto_s;
+using InventoryFlow.Domain.DTO_s.VendorDTO_s;
 using autoMapper = AutoMapper;
-using DbModel = InventoryFlow.Domain.DbModels;
+using DbModels = InventoryFlow.Domain.DbModels;
 namespace InventoryFlow.Service.Common
 {
     public class AutoMapperProfiles
@@ -10,9 +12,29 @@ namespace InventoryFlow.Service.Common
         {
             public ProductProfile()
             {
-                CreateMap<DbModel.Product, ProductDTO>().ReverseMap();
+                CreateMap<DbModels.Product, ProductDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             }
-
+        }
+        public class VendorProfile : autoMapper.Profile
+        {
+            public VendorProfile()
+            {
+                CreateMap<DbModels.Vendor, VendorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            }
+        }
+        public class CategoryProfile : autoMapper.Profile
+        {
+            public CategoryProfile()
+            {
+                CreateMap<DbModels.Category, CategoryDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            }
+        }
+        public class StockProfile : autoMapper.Profile
+        {
+            public StockProfile()
+            {
+                CreateMap<DbModels.Stock, StockDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            }
         }
     }
 }

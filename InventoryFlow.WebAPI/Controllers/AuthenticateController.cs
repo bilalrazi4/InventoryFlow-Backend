@@ -39,6 +39,7 @@ namespace InventoryFlow.Controllers
                 var authClaims = new List<Claim>
                 {
                     new (ClaimTypes.Name, user.UserName),
+                    new("UserId",user.Id.ToString()),
                     new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
                 foreach (var userRole in userRoles)
