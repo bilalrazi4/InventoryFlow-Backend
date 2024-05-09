@@ -29,6 +29,10 @@ public partial class HfinventoryFlowContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<GeoLevel> GeoLevels { get; set; }
+
+    public virtual DbSet<HealthFacilitiesNew> HealthFacilitiesNews { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<Stock> Stocks { get; set; }
@@ -37,7 +41,7 @@ public partial class HfinventoryFlowContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=172.16.15.5;Database=HFInventoryFlow;Encrypt=false;TrustServerCertificate=true;user id=rovaid;password=asd@123;");
+        => optionsBuilder.UseSqlServer("Server=172.16.15.5;Database=HFInventoryFlow;User Id=rovaid;Password=asd@123;Encrypt=false;TrustServerCertificate=true;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -117,6 +121,153 @@ public partial class HfinventoryFlowContext : DbContext
             entity.Property(e => e.CreatedBy).HasMaxLength(128);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.UpdatedBy).HasMaxLength(128);
+        });
+
+        modelBuilder.Entity<GeoLevel>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_dbo.GeoLevels");
+
+            entity.Property(e => e.Code)
+                .HasMaxLength(25)
+                .HasColumnName("CODE");
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(100)
+                .HasColumnName("CREATED_BY");
+            entity.Property(e => e.CreationDate)
+                .HasColumnType("datetime")
+                .HasColumnName("CREATION_DATE");
+            entity.Property(e => e.EnableFlag)
+                .HasMaxLength(10)
+                .HasColumnName("ENABLE_FLAG");
+            entity.Property(e => e.Fkcode)
+                .HasMaxLength(50)
+                .HasColumnName("FKCODE");
+            entity.Property(e => e.Hrpkcode)
+                .HasMaxLength(50)
+                .HasColumnName("HRPKCODE");
+            entity.Property(e => e.IsPhcipdistrict).HasColumnName("IsPHCIPDistrict");
+            entity.Property(e => e.IsPhfmc).HasColumnName("IsPHFMC");
+            entity.Property(e => e.LastMrTokenUpdate).HasColumnType("datetime");
+            entity.Property(e => e.LastMrnumber)
+                .HasMaxLength(100)
+                .HasColumnName("LastMRNumber");
+            entity.Property(e => e.LastSyncDateTime).HasColumnType("datetime");
+            entity.Property(e => e.Lvl)
+                .HasMaxLength(100)
+                .HasColumnName("LVL");
+            entity.Property(e => e.Name)
+                .HasMaxLength(500)
+                .HasColumnName("NAME");
+            entity.Property(e => e.ParentId).HasColumnName("Parent_Id");
+            entity.Property(e => e.Pkcode)
+                .HasMaxLength(50)
+                .HasColumnName("PKCODE");
+            entity.Property(e => e.UpdationDate)
+                .HasColumnType("datetime")
+                .HasColumnName("UPDATION_DATE");
+            entity.Property(e => e.UpdtedBy)
+                .HasMaxLength(100)
+                .HasColumnName("UPDTED_BY");
+        });
+
+        modelBuilder.Entity<HealthFacilitiesNew>(entity =>
+        {
+            entity.ToTable("health_facilities_new");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.AreaType)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("area_type");
+            entity.Property(e => e.Class)
+                .HasMaxLength(50)
+                .HasColumnName("class");
+            entity.Property(e => e.DateCreated)
+                .HasColumnType("datetime")
+                .HasColumnName("date_created");
+            entity.Property(e => e.DateUpdated)
+                .HasColumnType("datetime")
+                .HasColumnName("date_updated");
+            entity.Property(e => e.Dhisuid)
+                .HasMaxLength(50)
+                .HasColumnName("DHISUID");
+            entity.Property(e => e.DistrictId).HasColumnName("district_id");
+            entity.Property(e => e.Dsr).HasColumnName("dsr");
+            entity.Property(e => e.Emr).HasColumnName("emr");
+            entity.Property(e => e.FacilityCode)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("facility_code");
+            entity.Property(e => e.FacilityId)
+                .HasMaxLength(50)
+                .HasColumnName("facility_id");
+            entity.Property(e => e.FacilityName)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("facility_name");
+            entity.Property(e => e.FacilityStatus).HasColumnName("facility_status");
+            entity.Property(e => e.FacilityType)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("facility_type");
+            entity.Property(e => e.FunctionStatus)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.HrDistrictCode)
+                .HasMaxLength(100)
+                .HasColumnName("HR_District_Code");
+            entity.Property(e => e.HrDistrictName)
+                .HasMaxLength(100)
+                .HasColumnName("HR_DistrictName");
+            entity.Property(e => e.HrDivisionCode)
+                .HasMaxLength(100)
+                .HasColumnName("HR_DivisionCode");
+            entity.Property(e => e.HrDivisionName)
+                .HasMaxLength(100)
+                .HasColumnName("HR_DivisionName");
+            entity.Property(e => e.HrHftype)
+                .HasMaxLength(250)
+                .HasColumnName("HR_HFType");
+            entity.Property(e => e.HrTehsilCode)
+                .HasMaxLength(100)
+                .HasColumnName("HR_Tehsil_Code");
+            entity.Property(e => e.HrTehsilName)
+                .HasMaxLength(100)
+                .HasColumnName("HR_TehsilName");
+            entity.Property(e => e.HrmisCode)
+                .HasMaxLength(100)
+                .HasColumnName("HRMIS_CODE");
+            entity.Property(e => e.HrmisHfTypeCode)
+                .HasMaxLength(50)
+                .HasColumnName("Hrmis_hfTypeCode");
+            entity.Property(e => e.HrmisHfTypeName)
+                .HasMaxLength(100)
+                .HasColumnName("Hrmis_hfTypeName");
+            entity.Property(e => e.HrmisId).HasColumnName("HRMIS_ID");
+            entity.Property(e => e.IrmnchFacility).HasColumnName("irmnch_facility");
+            entity.Property(e => e.IsDeviceCheck).HasDefaultValue(false);
+            entity.Property(e => e.MeaRegion).HasColumnName("mea_region");
+            entity.Property(e => e.OldHfid).HasColumnName("OldHFId");
+            entity.Property(e => e.Otp)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("otp");
+            entity.Property(e => e.Phase)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("phase");
+            entity.Property(e => e.PhcipFacility).HasColumnName("PHCIP_facility");
+            entity.Property(e => e.PhfmcFacility).HasColumnName("PHFMC_facility");
+            entity.Property(e => e.PmhiFacility).HasColumnName("PMHI_facility");
+            entity.Property(e => e.Psbi).HasColumnName("psbi");
+            entity.Property(e => e.Sc)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("sc");
+            entity.Property(e => e.Services247).HasColumnName("services_24_7");
+            entity.Property(e => e.TehsilCode).HasMaxLength(50);
+            entity.Property(e => e.TehsilId).HasColumnName("tehsil_id");
+            entity.Property(e => e.UcId).HasColumnName("uc_id");
         });
 
         modelBuilder.Entity<Product>(entity =>

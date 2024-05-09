@@ -1,6 +1,7 @@
 ﻿using InventoryFlow.Domain.DTO_s.CategoryDTO_s;
 using InventoryFlow.Domain.DTO_s.ProductDTO_s;
 using InventoryFlow.Domain.DTO_s.StockDto_s;
+using InventoryFlow.Domain.DTO_s.UserRegisterationDTO_s;
 using InventoryFlow.Domain.DTO_s.VendorDTO_s;
 using autoMapper = AutoMapper;
 using DbModels = InventoryFlow.Domain.DbModels;
@@ -34,6 +35,21 @@ namespace InventoryFlow.Service.Common
             public StockProfile()
             {
                 CreateMap<DbModels.Stock, StockDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            }
+        }
+        public class GeoLevelProfile : autoMapper.Profile
+        {
+            public GeoLevelProfile()
+            {
+                CreateMap<DbModels.GeoLevel, GeoLevelsDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+               
+            }
+        }
+        public class HealthFacilityNewProfile : autoMapper.Profile
+        {
+            public HealthFacilityNewProfile()
+            {
+                CreateMap<DbModels.HealthFacilitiesNew, HealthFacilitiesDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             }
         }
     }
