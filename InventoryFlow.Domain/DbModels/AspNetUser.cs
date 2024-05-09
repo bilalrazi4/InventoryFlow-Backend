@@ -21,13 +21,13 @@ public partial class AspNetUser
 
     public string? Gender { get; set; }
 
-    public int? DivisionCode { get; set; }
+    public string? DivisionCode { get; set; }
 
-    public int? DistrictCode { get; set; }
+    public string? DistrictCode { get; set; }
 
-    public int? TownCode { get; set; }
+    public string? TownCode { get; set; }
 
-    public int? InstituteId { get; set; }
+    public string? InstituteId { get; set; }
 
     public string? Address { get; set; }
 

@@ -6,11 +6,12 @@ using System.Text;
 using InventoryFlow.Domain.DbModels;
 using InventoryFlow.Domain.Repositories;
 using InventoryFlow.Service.Services;
+using InventoryFlow;
 //--------------------------------------------------------------------------------------------
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
-builder.Services.AddDbContext<HfinventoryFlowContext>(options => 
-options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+//builder.Services.AddDbContext<HfinventoryFlowContext>(options => 
+//options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDbContext<IdentityContext>(options =>
        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

@@ -48,10 +48,11 @@ namespace InventoryFlow.Controllers
                     authClaims.Add(new Claim(ClaimTypes.Role, userRole));
                 }
                 var token = GetToken(authClaims);
-                return Ok(new LoginResponseDTO                {
+                return Ok(new LoginResponseDTO {
                     Token = new JwtSecurityTokenHandler().WriteToken(token),
                     Expiration = token.ValidTo,
                     Status = "Success",
+                    roles = (List<string>)userRoles,
                     Message = "login successfully!"
                 });
             }
