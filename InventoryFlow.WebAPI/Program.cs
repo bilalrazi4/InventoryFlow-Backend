@@ -7,6 +7,7 @@ using InventoryFlow.Domain.DbModels;
 using InventoryFlow.Domain.Repositories;
 using InventoryFlow.Service.Services;
 using InventoryFlow;
+using InventoryFlow.Domain.DTO_s.ApplicationUser;
 //--------------------------------------------------------------------------------------------
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -26,7 +27,9 @@ Services.AddCors(options =>
             .AllowCredentials());
 });
 // For Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddRoles<IdentityRole>()
+    .AddRoleManager<RoleManager<IdentityRole>>()
     .AddEntityFrameworkStores<IdentityContext>()
     .AddDefaultTokenProviders();
 // Adding Authentication

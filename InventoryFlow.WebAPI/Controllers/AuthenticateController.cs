@@ -17,11 +17,11 @@ namespace InventoryFlow.Controllers
     [ApiController]
     public class AuthenticateController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
-        public AuthenticateController(UserManager<IdentityUser> userManager,RoleManager<IdentityRole> roleManager,
+        public AuthenticateController(UserManager<ApplicationUser> userManager,RoleManager<IdentityRole> roleManager,
             IConfiguration configuration)
         {
             _userManager = userManager;
@@ -88,7 +88,7 @@ namespace InventoryFlow.Controllers
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new ResponseDTO<string> { Status = false, Message = "User already exists!" });
 
-            IdentityUser user = new()
+            ApplicationUser user = new()
             {
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
