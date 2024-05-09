@@ -1,5 +1,6 @@
 ﻿using InventoryFlow.Domain.DTO_s.CategoryDTO_s;
 using InventoryFlow.Domain.DTO_s.ProductDTO_s;
+using InventoryFlow.Domain.DTO_s.RequestDto_s;
 using InventoryFlow.Domain.DTO_s.StockDto_s;
 using InventoryFlow.Domain.DTO_s.UserRegisterationDTO_s;
 using InventoryFlow.Domain.DTO_s.VendorDTO_s;
@@ -50,6 +51,13 @@ namespace InventoryFlow.Service.Common
             public HealthFacilityNewProfile()
             {
                 CreateMap<DbModels.HealthFacilitiesNew, HealthFacilitiesDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            }
+        }
+        public class RequestProfile : autoMapper.Profile
+        {
+            public RequestProfile()
+            {
+                CreateMap<DbModels.Request, RequestDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             }
         }
     }

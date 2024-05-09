@@ -24,7 +24,7 @@ namespace InventoryFlow.Controllers
         public async Task<IActionResult> CreateOrUpdateStock(StockDTO stock)
         {
             var obj = await _stockService.CreateOrUpdate(stock);
-            return Ok(new ResponseDTO<StockDTO> { Status = obj.Status, Message =obj.Message, Data = obj.Data });
+            return Ok(new ResponseDTO<StockDTO> { Status = obj.Status, Message = obj.Message, Data = obj.Data });
         }
 
         [HttpDelete]
@@ -37,6 +37,17 @@ namespace InventoryFlow.Controllers
 
 
         #endregion
+        #region Read Operation
+        [HttpGet]
+        [Route("GetAllStockForUser")]
+
+        public async Task<IActionResult> GetAllStockForUser()
+        {
+            var obj = await _stockService.GetAllStockForTheUser();
+            return Ok(new ResponseDTO<List<StockDTO>> { Status = true, Message = "Record Fetched Successfully"});
+        }
+
+
 
         [HttpGet]
         [Route("GetAllStocks")]
@@ -53,5 +64,6 @@ namespace InventoryFlow.Controllers
             var obj = await _stockService.GetStockWithNames();
             return Ok(new ResponseDTO<List<StockWithNamesDto>> { Status = true, Message = "Record Fetched Successfully", Data = obj.Data });
         }
+        #endregion
     }
 }

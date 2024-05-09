@@ -39,7 +39,9 @@ namespace InventoryFlow.Service.Services
                 //check if active stock with same product exist.. return if it already exists
                 if (stock.Id == 0)
                 {
-                    var existingStockWithProduct = await _uowStock.Repository.GetALL(existingItem => existingItem.ProductId == stock.ProductId && existingItem.IsActive == true).FirstOrDefaultAsync();
+                    var existingStockWithProduct = await _uowStock.Repository.GetALL(existingItem => existingItem.ProductId == stock.ProductId && existingItem.VendorId==stock.VendorId &&
+                    existingItem.Batch==stock.Batch
+                    &&  existingItem.IsActive == true).FirstOrDefaultAsync();
                     if (existingStockWithProduct != null)
                     {
                         return new ResponseDTO<StockDTO>
@@ -106,6 +108,8 @@ namespace InventoryFlow.Service.Services
             }
         }
 
+
+
         public async Task<ResponseDTO<List<StockWithNamesDto>>> GetStockWithNames()
         {
             try
@@ -127,7 +131,26 @@ namespace InventoryFlow.Service.Services
             }
         }
 
-
+        public async Task<ResponseDTO<List<StockForUserDTO>>> GetAllStockForTheUser()
+        {
+            try
+            {
+                var conn =
+                new SqlConnection(_uowStock.GetDbContext().Database.GetConnectionString());
+                conn.Open();
+                var result = conn.Query<StockForUserDTO>(
+                    "StockListForTheUser",
+                    commandType: CommandType.StoredProcedure
+                ).ToList();
+                //var stock = await _uowStock.Repository.GetALL(x => x.IsActive == true && x.InStock == true).ToListAsync();
+                var obj = _mapper.Map<List<StockForUserDTO>>(result);
+                return new ResponseDTO<List<StockForUserDTO>> { Status = true, Message = "Stock record fetched", Data = obj };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
 
         public async Task<StockDTO> GetById(int StockId)
