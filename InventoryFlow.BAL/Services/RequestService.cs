@@ -58,6 +58,10 @@ namespace InventoryFlow.Service.Services
 
         public async Task<RequestDTO> AcceptRequest(RequestDTO request)
         {
+            //req
+            request.AdminId = _userDataService.GetUserId();
+
+
             return null;
         }
 
@@ -70,6 +74,47 @@ namespace InventoryFlow.Service.Services
             try
             {
                 var requests = await _uowRequest.Repository.GetALL(x => x.IsActive == true).ToListAsync();
+                var obj = _mapper.Map<List<RequestDTO>>(requests);
+                return obj;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<RequestDTO>> GetPendingRequestsList()
+        {
+            try
+            {
+                var requests = await _uowRequest.Repository.GetALL(x => x.IsActive == true && x.Status=="Pending").ToListAsync();
+                var obj = _mapper.Map<List<RequestDTO>>(requests);
+                return obj;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<List<RequestDTO>> GetApprovedRequestsList()
+        {
+            try
+            {
+                var requests = await _uowRequest.Repository.GetALL(x => x.IsActive == true && x.Status == "Approved" &&
+                x.AdminId == _userDataService.GetUserId()).ToListAsync();
+                var obj = _mapper.Map<List<RequestDTO>>(requests);
+                return obj;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<List<RequestDTO>> GetRejectedRequestsList()
+        {
+            try
+            {
+                var requests = await _uowRequest.Repository.GetALL(x => x.IsActive == true && x.Status == "Rejected" && x.AdminId==_userDataService.GetUserId()).ToListAsync();
                 var obj = _mapper.Map<List<RequestDTO>>(requests);
                 return obj;
             }
