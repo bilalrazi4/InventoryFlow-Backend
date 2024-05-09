@@ -35,6 +35,8 @@ public partial class HfinventoryFlowContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<Request> Requests { get; set; }
+
     public virtual DbSet<Stock> Stocks { get; set; }
 
     public virtual DbSet<Vendor> Vendors { get; set; }
@@ -279,6 +281,18 @@ public partial class HfinventoryFlowContext : DbContext
             entity.Property(e => e.ProductName).HasMaxLength(500);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.UpdatedBy).HasMaxLength(128);
+        });
+
+        modelBuilder.Entity<Request>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("Request");
+
+            entity.Property(e => e.AdminId).HasMaxLength(450);
+            entity.Property(e => e.IsActive).HasColumnName("isActive");
+            entity.Property(e => e.Status).HasMaxLength(100);
+            entity.Property(e => e.UserId).HasMaxLength(450);
         });
 
         modelBuilder.Entity<Stock>(entity =>
