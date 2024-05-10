@@ -9,7 +9,6 @@ namespace InventoryFlow.Domain.DTO_s.RequestDto_s
     public class RequestDTO
     {
         public int Id { get; set; }
-
         public string UserId { get; set; } = null!;
         public string? AdminId { get; set; }
         public int StockId { get; set; }
