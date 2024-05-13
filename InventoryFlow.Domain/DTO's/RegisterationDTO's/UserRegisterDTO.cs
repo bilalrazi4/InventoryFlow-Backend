@@ -9,14 +9,19 @@ namespace InventoryFlow.Domain.DTO_s.RegisterationDTO_s
 {
     public class UserRegisterDTO
     {
-        [Required(ErrorMessage = "User Name is required")]
         public string? Username { get; set; }
-
-        [EmailAddress]
-        [Required(ErrorMessage = "Email is required")]
         public string? Email { get; set; }
 
-        [Required(ErrorMessage = "Password is required")]
         public string? Password { get; set; }
+        public string? DistrictCode { get; set; }
+        public string? TownCode { get; set; }
+        public string? InstituteId { get; set; }
+        public string? Designation { get; set; }
+        public bool? IsDisabled { get; set; }
+        public string? CNIC { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? FullName { get; set; }
+        public string? PhoneNo { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace InventoryFlow.Service.Services
         {
             try
             {
-                var category = await _uowHealthFacility.Repository.GetALL(x => x.FacilityStatus == 1 && x.TehsilCode == Pkcode).ToListAsync();
+                var category = await _uowHealthFacility.Repository.GetALL(x => x.FacilityStatus == 1 && x.TehsilCode == Pkcode && x.FacilityType== "THOS").ToListAsync();
                 var obj = _mapper.Map<List<HealthFacilitiesDTO>>(category);
                 return obj;
             }
