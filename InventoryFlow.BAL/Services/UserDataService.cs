@@ -38,5 +38,31 @@ namespace InventoryFlow.Service.Services
             var userId = userClaims.Where(x => x.Type == "UserId").FirstOrDefault().Value;
             return userId;
         }
+        public int GetUserHFId()
+        {
+            HttpContext httpContext = _httpContextAccessor.HttpContext;
+            var userClaims = httpContext.User.Claims.ToList();
+            var userhfId = userClaims.Where(x => x.Type == "UserHFId").FirstOrDefault().Value;
+            int.TryParse(userhfId, out int hfid);
+            return hfid;
+        }
+        public async Task<ResponseDTO<List<UserDetailDTO_s>>> GetAllRegisteredUsers()
+        {
+            try
+            {
+                var conn =
+                new SqlConnection(_uowHealthFacility.GetDbContext().Database.GetConnectionString());
+                conn.Open();
+                var result = conn.Query<UserDetailDTO_s>(
+                    "UserDetails",
+                    commandType: CommandType.StoredProcedure
+                ).ToList();
+                return new ResponseDTO<List<UserDetailDTO_s>> { Status = true, Message = "User record fetched", Data = result };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }
