@@ -36,7 +36,11 @@ namespace InventoryFlow.Service.Common
             public StockProfile()
             {
                 CreateMap<DbModels.Stock, StockDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+                CreateMap<DbModels.StockOut, StockOutDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+                CreateMap<DbModels.StockOut, RequestDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
             }
+
         }
         public class GeoLevelProfile : autoMapper.Profile
         {
@@ -58,6 +62,7 @@ namespace InventoryFlow.Service.Common
             public RequestProfile()
             {
                 CreateMap<DbModels.Request, RequestDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+                CreateMap<DbModels.RequestMaster, RequestMasterDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             }
         }
     }

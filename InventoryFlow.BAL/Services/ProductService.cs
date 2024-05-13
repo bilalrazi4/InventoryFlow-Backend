@@ -54,7 +54,7 @@ namespace InventoryFlow.Service.Services
         {
             try
             {
-                var products = await _uowProduct.Repository.GetALL(x => x.IsActive == true).ToListAsync();
+                var products = await _uowProduct.Repository.GetALL().ToListAsync();
                 var obj = _mapper.Map<List<ProductDTO>>(products);
                 return obj;
             }

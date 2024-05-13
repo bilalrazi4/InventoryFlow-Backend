@@ -6,23 +6,19 @@ using System.Threading.Tasks;
 
 namespace InventoryFlow.Domain.DTO_s.RequestDto_s
 {
-    public class RequestDTO
+    public class RequestMasterDTO
     {
         public int Id { get; set; }
         public string? AdminId { get; set; }
-        public int StockId { get; set; }
-        public int ProductId { get; set; }
-        public decimal RequestedQuantity { get; set; }
-        public decimal PricePerUnit { get; set; }
-        public decimal TotalPrice { get; set; }
+        public string? RequestStatus { get; set; }
+        public int? UserHfId { get; set; }
         public string? Remarks { get; set; }
-        public string? CreatedBy { get; set; }
+        public bool? ChequeStatus { get; set; }
+        public string CreatedBy { get; set; } = null!;
         public DateTime? CreatedAt { get; set; }
         public string? UpdatedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool? IsActive { get; set; }
-        public int RequestId { get; set; }
-
-
+        public string? HealthFacilityName { get; set; }
     }
 }

@@ -22,5 +22,13 @@ namespace InventoryFlow.Service.Services
             var userId = userClaims.Where(x => x.Type == "UserId").FirstOrDefault().Value;
             return userId;
         }
+        public int GetUserHFId()
+        {
+            HttpContext httpContext = _httpContextAccessor.HttpContext;
+            var userClaims = httpContext.User.Claims.ToList();
+            var userhfId = userClaims.Where(x => x.Type == "UserHFId").FirstOrDefault().Value;
+            int.TryParse(userhfId, out int hfid);
+            return hfid;
+        }
     }
 }

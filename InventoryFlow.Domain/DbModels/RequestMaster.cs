@@ -3,23 +3,21 @@ using System.Collections.Generic;
 
 namespace InventoryFlow.Domain.DbModels;
 
-public partial class Request
+public partial class RequestMaster
 {
     public int Id { get; set; }
 
-    public int StockId { get; set; }
+    public string? AdminId { get; set; }
 
-    public int ProductId { get; set; }
+    public string? RequestStatus { get; set; }
 
-    public decimal RequestedQuantity { get; set; }
-
-    public decimal PricePerUnit { get; set; }
-
-    public decimal TotalPrice { get; set; }
+    public int? UserHfId { get; set; }
 
     public string? Remarks { get; set; }
 
-    public string? CreatedBy { get; set; }
+    public bool? ChequeStatus { get; set; }
+
+    public string CreatedBy { get; set; } = null!;
 
     public DateTime? CreatedAt { get; set; }
 
@@ -28,6 +26,4 @@ public partial class Request
     public DateTime? UpdatedAt { get; set; }
 
     public bool? IsActive { get; set; }
-
-    public int RequestId { get; set; }
 }

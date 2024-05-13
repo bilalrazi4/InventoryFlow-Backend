@@ -66,6 +66,7 @@ builder.Services.AddScoped<VendorService, VendorService>();
 builder.Services.AddScoped<UserDataService, UserDataService>();
 builder.Services.AddScoped<CategoryService, CategoryService>();
 builder.Services.AddScoped<StockService, StockService>();
+builder.Services.AddScoped<RequestService, RequestService>();
 builder.Services.AddScoped<GeoLevelService, GeoLevelService>();
 builder.Services.AddScoped<HealthFacilityService, HealthFacilityService>();
 //builder.Services.AddScoped<IHttpContextAccessor, IHttpContextAccessor>();

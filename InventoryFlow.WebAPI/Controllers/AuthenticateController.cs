@@ -40,7 +40,7 @@ namespace InventoryFlow.Controllers
                 {
                     new (ClaimTypes.Name, user.UserName),
                     new("UserId",user.Id.ToString()),
-                    
+                    new("UserHFId",user.InstituteId.ToString()),
                     new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
                 foreach (var userRole in userRoles)

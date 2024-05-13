@@ -44,7 +44,7 @@ namespace InventoryFlow.Controllers
         public async Task<IActionResult> GetAllStockForUser()
         {
             var obj = await _stockService.GetAllStockForTheUser();
-            return Ok(new ResponseDTO<List<StockDTO>> { Status = true, Message = "Record Fetched Successfully"});
+            return Ok(new ResponseDTO<List<StockForUserDTO>> { Status = true, Message = "Record Fetched Successfully",Data=obj.Data});
         }
 
 

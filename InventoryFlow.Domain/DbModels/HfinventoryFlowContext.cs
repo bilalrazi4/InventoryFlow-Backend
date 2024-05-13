@@ -27,17 +27,25 @@ public partial class HfinventoryFlowContext : DbContext
 
     public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; }
 
+    public virtual DbSet<Attachment> Attachments { get; set; }
+
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<GeoLevel> GeoLevels { get; set; }
 
     public virtual DbSet<HealthFacilitiesNew> HealthFacilitiesNews { get; set; }
 
+    public virtual DbSet<Invoice> Invoices { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<Request> Requests { get; set; }
 
+    public virtual DbSet<RequestMaster> RequestMasters { get; set; }
+
     public virtual DbSet<Stock> Stocks { get; set; }
+
+    public virtual DbSet<StockOut> StockOuts { get; set; }
 
     public virtual DbSet<Vendor> Vendors { get; set; }
 
@@ -112,6 +120,11 @@ public partial class HfinventoryFlowContext : DbContext
             entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
 
             entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
+        });
+
+        modelBuilder.Entity<Attachment>(entity =>
+        {
+            entity.ToTable("Attachment");
         });
 
         modelBuilder.Entity<Category>(entity =>
@@ -272,9 +285,18 @@ public partial class HfinventoryFlowContext : DbContext
             entity.Property(e => e.UcId).HasColumnName("uc_id");
         });
 
+        modelBuilder.Entity<Invoice>(entity =>
+        {
+            entity.ToTable("Invoice");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+        });
+
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.ToTable("Product");
+            entity
+                .HasNoKey()
+                .ToTable("Product");
 
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.CreatedBy).HasMaxLength(128);
@@ -285,14 +307,20 @@ public partial class HfinventoryFlowContext : DbContext
 
         modelBuilder.Entity<Request>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("Request");
+            entity.ToTable("Request");
+
+            entity.Property(e => e.IsActive).HasColumnName("isActive");
+            entity.Property(e => e.PricePerUnit).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.RequestedQuantity).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.TotalPrice).HasColumnType("decimal(18, 0)");
+        });
+
+        modelBuilder.Entity<RequestMaster>(entity =>
+        {
+            entity.ToTable("RequestMaster");
 
             entity.Property(e => e.AdminId).HasMaxLength(450);
-            entity.Property(e => e.IsActive).HasColumnName("isActive");
-            entity.Property(e => e.Status).HasMaxLength(100);
-            entity.Property(e => e.UserId).HasMaxLength(450);
+            entity.Property(e => e.RequestStatus).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Stock>(entity =>
@@ -306,6 +334,22 @@ public partial class HfinventoryFlowContext : DbContext
             entity.Property(e => e.ManufacturingDate).HasColumnType("datetime");
             entity.Property(e => e.Quantity).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.Rate).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedBy).HasMaxLength(128);
+        });
+
+        modelBuilder.Entity<StockOut>(entity =>
+        {
+            entity.ToTable("StockOut");
+
+            entity.Property(e => e.ApprovedQuantity).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.Batch).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.CreatedBy).HasMaxLength(128);
+            entity.Property(e => e.LastAvailableQuantity).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.Rate).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.RequestedQuantity).HasColumnType("decimal(18, 0)");
+            entity.Property(e => e.TotalPrice).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.UpdatedBy).HasMaxLength(128);
         });
