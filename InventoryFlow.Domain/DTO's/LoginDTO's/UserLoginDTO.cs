@@ -11,8 +11,8 @@ namespace InventoryFlow.Domain.DTO_s.LoginDTO_s
     {
 
         [Required(ErrorMessage = "User Name is required")]
-        [EmailAddress]
-        public required string Email { get; set; }
+    
+        public required string UserName { get; set; }
 
         [Required(ErrorMessage = "Password is required")]
         public required string Password { get; set; }

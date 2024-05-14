@@ -32,7 +32,7 @@ namespace InventoryFlow.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login(UserLoginDTO model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await _userManager.FindByNameAsync(model.UserName);
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
@@ -56,7 +56,12 @@ namespace InventoryFlow.Controllers
                     Message = "login successfully!"
                 });
             }
-            return Unauthorized();
+            return Ok(new LoginResponseDTO
+            {
+                Status = "False",
+              
+                Message = "Unauthorized!"
+            });
         }
 
         [HttpPost]

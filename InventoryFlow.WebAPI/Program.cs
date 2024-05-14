@@ -17,6 +17,7 @@ builder.Services.AddDbContext<IdentityContext>(options =>
        options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var  Services=builder.Services;
+
 Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin",
@@ -35,6 +36,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 // Adding Authentication
 builder.Services.AddAuthentication(options =>
 {
+    
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -53,6 +55,7 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
     };  
 });
+builder.Services.AddSpaStaticFiles(c => { c.RootPath = "app"; });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -84,5 +87,31 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
+app.UseSpaStaticFiles(new StaticFileOptions()
+{
+    OnPrepareResponse = context =>
+    {
+        context.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store");
+        context.Context.Response.Headers["Pragma"] = "no-cache";
+        context.Context.Response.Headers.Append("Expires", "-1");
+    }
+});
+
+app.UseSpa(spa =>
+{
+    spa.Options.SourcePath = "app";
+    spa.Options.DefaultPageStaticFileOptions = new StaticFileOptions
+    {
+        OnPrepareResponse = context =>
+        {
+            // never cache index.html
+            if (context.File.Name == "index.html")
+            {
+                context.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store");
+                context.Context.Response.Headers.Append("Expires", "-1");
+            }
+        }
+    };
+});
 app.MapControllers();
 app.Run();
