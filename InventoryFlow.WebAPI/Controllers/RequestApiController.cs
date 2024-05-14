@@ -63,6 +63,14 @@ namespace InventoryFlow.Controllers
             var obj = await _requestService.RejectRequest(pendingRequestListToApprove, Remarks);
             return Ok(new ResponseDTO<RequestDTO> { Status = obj.Status, Message = obj.Message });
         }
+
+        [HttpGet]
+        [Route("AcceptApprovedRequest/{requestId}")]
+        public async Task<IActionResult> AcceptApprovedRequest(int requestId)
+        {
+            var obj = await _requestService.AcceptTheRequest(requestId);
+            return Ok(new ResponseDTO<bool> { Status = obj});
+        }
         #endregion
         #region Read API
         [HttpGet]

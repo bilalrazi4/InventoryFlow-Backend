@@ -1,4 +1,5 @@
 ﻿using InventoryFlow.Domain.DbModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,15 @@ namespace InventoryFlow.Domain.Repositories
         public HfinventoryFlowContext GetDbContext()
         {
             return _context;
+        }
+
+        public void Detach(T entity)
+        {
+            var entry = _context.Entry(entity);
+            if (entry.State != EntityState.Detached)
+            {
+                entry.State = EntityState.Detached;
+            }
         }
         private bool disposed = false;
         protected virtual void Dispose(bool disposing)

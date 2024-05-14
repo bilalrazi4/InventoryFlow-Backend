@@ -3,6 +3,7 @@ using Azure.Core;
 using InventoryFlow.Domain.DbModels;
 using InventoryFlow.Domain.DTO_s.RequestDto_s;
 using InventoryFlow.Domain.DTO_s.ResponseDTO_s;
+using InventoryFlow.Domain.DTO_s.StockDto_s;
 using InventoryFlow.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -155,6 +156,7 @@ namespace InventoryFlow.Service.Services
                 await imageFile.CopyToAsync(memoryStream);
                 imageData = memoryStream.ToArray();
             }
+
             var attachment = new Attachment
             {
                 ChequeImage = imageData,
@@ -258,6 +260,7 @@ namespace InventoryFlow.Service.Services
                 requestIdToUpdate = product.RequestId;
                 var requestDetailtoDelete = await _uowRequest.Repository.GetALL(x => x.Id == product.Id).FirstOrDefaultAsync();
                 requestDetailtoDelete.IsActive = false;
+                requestDetailtoDelete.Remarks = "Request Rejected";
                 requestDetailtoDelete.UpdatedAt = DateTime.Now;
                 requestDetailtoDelete.UpdatedBy = _userDataService.GetUserId();
                 _uowRequest.Repository.Update(requestDetailtoDelete);
@@ -410,10 +413,65 @@ namespace InventoryFlow.Service.Services
             }
             catch (Exception)
             {
-
                 throw;
             }
-           
+
+        }
+
+        public async Task<bool> AcceptTheRequest(int Requestid)
+        {
+            try
+            {
+                var requestList = await _uowRequest.Repository.GetALL(x => x.RequestId == Requestid).ToListAsync();
+                var batchList = await _uowStockOut.Repository.GetALL(x => x.RequestId == Requestid).ToListAsync();
+                foreach (var batch in batchList)
+                {
+                    var stockToEditQuantity = await _uowStock.Repository.GetALL(x => x.Id == batch.StockId).FirstOrDefaultAsync();
+                    var obj = _mapper.Map<StockDTO>(stockToEditQuantity);
+                    if (obj.Quantity >= batch.ApprovedQuantity)
+                        obj.Quantity -= batch.ApprovedQuantity;
+                    obj.UpdatedAt = DateTime.Now;
+                    obj.UpdatedBy = _userDataService.GetUserId();
+                    if (obj.Quantity <= 0)
+                        obj.InStock = false;
+                    var objtoInsert = _mapper.Map<Stock>(obj);
+                    _uowStock.Detach(stockToEditQuantity);
+                    _uowStock.Repository.Update(objtoInsert);
+                    await _uowStock.SaveAsync();
+                }
+                foreach (var request in requestList)
+                {
+                    var requestToSetActiveFalse = await _uowRequest.Repository.GetALL(x => x.Id == request.Id).FirstOrDefaultAsync();
+                    var obj = _mapper.Map<RequestDTO>(requestToSetActiveFalse);
+
+                    obj.IsActive = false;
+                    obj.Remarks = "product has been dispensed";
+                    var objtoInsert = _mapper.Map<Request>(obj);
+                    _uowRequest.Detach(requestToSetActiveFalse);
+
+                    _uowRequest.Repository.Update(objtoInsert);
+                    await _uowRequest.SaveAsync();
+                }
+                var requestToAccept = await _uowRequestMaster.Repository.GetALL(x => x.Id == Requestid).FirstOrDefaultAsync();
+                var _obj = _mapper.Map<RequestMasterDTO>(requestToAccept);
+                _obj.Remarks = "Request has been Accepted";
+                _obj.RequestStatus = "Accepted";
+                var _objtoInsert = _mapper.Map<RequestMaster>(_obj);
+                _uowRequestMaster.Detach(requestToAccept);
+                _uowRequestMaster.Repository.Update(_objtoInsert);
+                await _uowRequestMaster.SaveAsync();
+
+
+
+
+                return true;
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
         }
 
         public async Task<Invoice> GetInvoiceAgainstTheApprovedRequest(RequestMasterDTO request)
