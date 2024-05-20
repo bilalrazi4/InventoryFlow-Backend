@@ -320,6 +320,7 @@ public partial class HfinventoryFlowContext : DbContext
             entity.ToTable("RequestMaster");
 
             entity.Property(e => e.AdminId).HasMaxLength(450);
+            entity.Property(e => e.RequestIdentifier).HasMaxLength(50);
             entity.Property(e => e.RequestStatus).HasMaxLength(50);
         });
 

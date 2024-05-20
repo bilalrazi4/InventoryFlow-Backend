@@ -1,4 +1,5 @@
 ﻿using InventoryFlow.Domain.DbModels;
+using InventoryFlow.Domain.DTO_s;
 using InventoryFlow.Domain.DTO_s.RequestDto_s;
 using InventoryFlow.Domain.DTO_s.ResponseDTO_s;
 using InventoryFlow.Service.Services;
@@ -41,11 +42,11 @@ namespace InventoryFlow.Controllers
             return Ok(new ResponseDTO<string> { Status = true, Message = "Successfully Saved or Updated"});
         }
 
-        [HttpGet]
-        [Route("GeneratePDFForApprovedRequest/{RequestId}/{docDef}")]
-        public async Task<IActionResult> GeneratePDFForApprovedRequest(int RequestId, string  docDef)
+        [HttpPost]
+        [Route("GeneratePDFForApprovedRequest")]
+        public async Task<IActionResult> GeneratePDFForApprovedRequest(PdfDTO model)
         {
-            var obj = await _requestService.GeneratePDFForApprovedRequest(RequestId, docDef);
+            var obj = await _requestService.GeneratePDFForApprovedRequest(model.RequestId, model.SerializedDocDef);
             return Ok(new ResponseDTO<string> { Status = obj.Status, Message = obj.Message });
         }
         [HttpPost]
@@ -86,6 +87,22 @@ namespace InventoryFlow.Controllers
         {
             var obj = await _requestService.GetPendingRequestsDetailList(RequestMasterId);
             return Ok(new ResponseDTO<List<RequestDTO>> { Status = true, Message = "Record Fetched Successfully", Data = obj });
+        }
+
+        [HttpGet]
+        [Route("GetAcceptedRequestsDetailListForUser/{RequestMasterId}")]
+        public async Task<IActionResult> GetAcceptedRequestsDetailListForUser(int RequestMasterId)
+        {
+            var obj = await _requestService.GetAcceptedRequestsDetailListForUser(RequestMasterId);
+            return Ok(new ResponseDTO<List<RequestDTO>> { Status = true, Message = "Record Fetched Successfully", Data = obj });
+        }
+
+        [HttpGet]
+        [Route("GetRequestMasterByRequestId/{RequestMasterId}")]
+        public async Task<IActionResult> GetRequestMasterByRequestId(int RequestMasterId)
+        {
+            var obj = await _requestService.GetRequestMasterByRequestId(RequestMasterId);
+            return Ok(new ResponseDTO<RequestMasterDTO> { Status = true, Message = "Record Fetched Successfully", Data = obj });
         }
         [HttpGet]
         [Route("GetAllApprovedRequests")]

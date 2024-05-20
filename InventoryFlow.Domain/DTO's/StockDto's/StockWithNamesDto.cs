@@ -18,5 +18,6 @@ namespace InventoryFlow.Domain.DTO_s.StockDto_s
         public DateTime? ManufacturingDate { get; set; }
         public DateTime? ExpiryDate { get; set; }
         public bool InStock { get; set; }
+        public DateTime? CreatedAt { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace InventoryFlow.Domain.DTO_s.RequestDto_s
     {
         public int Id { get; set; }
         public string? AdminId { get; set; }
+        public string? RequestIdentifier { get; set; }
         public string? RequestStatus { get; set; }
         public int? UserHfId { get; set; }
         public string? Remarks { get; set; }

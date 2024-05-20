@@ -64,5 +64,27 @@ namespace InventoryFlow.Service.Services
                 throw;
             }
         }
+
+
+
+        public async Task<ResponseDTO<UserDetailDTO_s>> GetCurrentLoggedInUser()
+        {
+            try
+            {
+                var conn =
+                new SqlConnection(_uowHealthFacility.GetDbContext().Database.GetConnectionString());
+                conn.Open();
+                var result = conn.Query<UserDetailDTO_s>(
+                    "UserDetails",
+                    commandType: CommandType.StoredProcedure
+                ).ToList();
+                var currentUser = result.FirstOrDefault(x => x.Id == GetUserId());
+                return new ResponseDTO<UserDetailDTO_s> { Status = true, Message = "User record fetched", Data = currentUser };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

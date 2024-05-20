@@ -33,5 +33,18 @@ namespace InventoryFlow.Service.Services
                 throw;
             }
         }
+        public async Task<List<HealthFacilitiesDTO>> GetAllHealthFacilties()
+        {
+            try
+            {
+                var category = await _uowHealthFacility.Repository.GetALL(x => x.FacilityStatus == 1 &&  x.FacilityType == "THOS").ToListAsync();
+                var obj = _mapper.Map<List<HealthFacilitiesDTO>>(category);
+                return obj;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

@@ -53,6 +53,16 @@ namespace InventoryFlow.Controllers
             var obj = await _HealthFacilityService.GetByTehsilCode(Pkcode);
             return Ok(new ResponseDTO<List<HealthFacilitiesDTO>> { Status = obj != null, Message = obj != null ? "Record Found" : "Record Not Found", Data = obj });
         }
+
+        [HttpGet]
+        [Route("GetAllHealthFacilities")]
+        public async Task<IActionResult> GetAllHealthFacilities()
+        {
+            var obj = await _HealthFacilityService.GetAllHealthFacilties();
+            return Ok(new ResponseDTO<List<HealthFacilitiesDTO>> { Status = obj != null, Message = obj != null ? "Record Found" : "Record Not Found", Data = obj });
+        }
+
+
         [HttpGet]
         [Route("GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
@@ -60,6 +70,17 @@ namespace InventoryFlow.Controllers
             var obj = await _userDataService.GetAllRegisteredUsers();
             return Ok(new ResponseDTO<List<UserDetailDTO_s>> { Status = true, Message = "Record Fetched Successfully", Data = obj.Data });
         }
+
+
+        [HttpGet]
+        [Route("GetCurrentLoggedInUser")]
+        public async Task<IActionResult> GetCurrentLoggedInUser()
+        {
+            var obj = await _userDataService.GetCurrentLoggedInUser();
+            return Ok(new ResponseDTO<UserDetailDTO_s> { Status = true, Message = "Record Fetched Successfully", Data = obj.Data });
+        }
+
+
         [HttpPost]
         [Route("RegisterNewUser")]
         public async Task<IActionResult> RegisterNewUser(UserRegisterDTO model)

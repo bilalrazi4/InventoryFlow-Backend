@@ -7,6 +7,7 @@ using InventoryFlow.Domain.DTO_s.StockDto_s;
 using InventoryFlow.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Request = InventoryFlow.Domain.DbModels.Request;
 
 namespace InventoryFlow.Service.Services
@@ -54,6 +55,15 @@ namespace InventoryFlow.Service.Services
                 await _uowRequestMaster.SaveAsync(); // saving a new row in RequestMaster
 
 
+                //this is so that i can add the requestIdentifier against the request I just inserted
+                
+
+                var initials = await GetInitials();
+                newRequestMaster.RequestIdentifier = initials+ newRequestMaster.Id;
+                _uowRequestMaster.Repository.Update(newRequestMaster);
+                await _uowRequestMaster.SaveAsync();
+
+
                 var currentRequestMasterId = newRequestMaster.Id; // getting the requestMasterId for adding it to the requestDetail rows
                 List<RequestDTO> newList = [];
                 foreach (var singleProductRequest in productsForRequestList)
@@ -69,65 +79,25 @@ namespace InventoryFlow.Service.Services
                     newList.Add(_mapper.Map<RequestDTO>(newProduct));
                 }
                 return newList;
-
-
-                //var existingRequest = await _uowRequest.Repository.GetById();
-                //if (existingRequest == null)
-                //{
-                //    var newRequest = _mapper.Map<Request>(request);
-                //    //newRequest.HfId = _userDataService.GetUserHFId();
-
-
-
-                //    newRequest.TotalPrice = newRequest.PricePerUnit * newRequest.TotalPrice;
-                //    //newRequest.Status = "Pending";
-                //    newRequest.CreatedAt = DateTime.Now;
-                //    newRequest.IsActive = true;
-                //    newRequest.CreatedBy = _userDataService.GetUserId();
-                //    await _uowRequest.Repository.InsertAsync(newRequest);
-                //    await _uowRequest.SaveAsync();
-                //    return _mapper.Map<RequestDTO>(newRequest);
-                //}
-                //else
-                //{
-                //    var obj = _mapper.Map(request, existingRequest);
-                //    obj.UpdatedAt = DateTime.Now;
-                //    obj.UpdatedBy = _userDataService.GetUserId();
-                //    _uowRequest.Repository.Update(obj);
-                //    await _uowRequest.SaveAsync();
-                //    return _mapper.Map<RequestDTO>(obj);
-                //}
             }
             catch (Exception)
             {
                 throw;
             }
         }
-        //public async Task<ResponseDTO<string>> GeneratePDFForApprovedRequest(IFormFile pdfFile,int requestId)
-        //{
-        //    // Read the PDF file into a byte array
-        //    using (MemoryStream ms = new MemoryStream())
-        //    {
-        //        await pdfFile.CopyToAsync(ms);
-        //        byte[] pdfBlob = ms.ToArray();
 
-        //        // Create a new Invoice object and save it to the database
-        //        var invoice = new Invoice
-        //        {
-        //            Pdf = pdfBlob,
-        //            RequestId = requestId,
-        //            InvoiceStatus = true
-        //        };
-        //        await _uowInvoice.Repository.InsertAsync(invoice);
-        //        await _uowInvoice.SaveAsync();
-        //    }
-        //    return new ResponseDTO<string>
-        //    {
-        //        Status = true,
-        //        Message = "Invoice Generated"
-        //    };
-        //}
+        public async Task<string> GetInitials()
+        {
+            var userFacility = await _uowHealthFacilties.Repository.GetALL(x => x.Id == _userDataService.GetUserHFId()).FirstOrDefaultAsync();
+            
+            if (string.IsNullOrEmpty(userFacility.FacilityName))
+                return string.Empty;
 
+            var initials = string.Concat(userFacility.FacilityName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                                             .Select(word => word[0]));
+
+            return initials;
+        }
         public async Task<ResponseDTO<string>> GeneratePDFForApprovedRequest(int requestId, string docDef)
         {
             // Create a new Invoice object and save it to the database
@@ -349,6 +319,40 @@ namespace InventoryFlow.Service.Services
                 throw;
             }
         }
+
+        public async Task<List<RequestDTO>> GetAcceptedRequestsDetailListForUser(int RequestMaserId)
+        {
+            try
+            {
+                var requestsDetail = await _uowRequest.Repository.GetALL(x=> x.RequestId == RequestMaserId && x.Remarks== "product has been dispensed").ToListAsync();
+                var obj = _mapper.Map<List<RequestDTO>>(requestsDetail);
+                return obj;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<RequestMasterDTO> GetRequestMasterByRequestId(int RequestMaserId)
+        {
+            try
+            {
+                var requestMaster = await _uowRequestMaster.Repository.GetALL(x=>x.Id== RequestMaserId).FirstOrDefaultAsync();
+
+                var Facility = await _uowHealthFacilties.Repository.GetALL(x => x.Id == requestMaster.UserHfId).FirstOrDefaultAsync();
+                
+                var obj = _mapper.Map<RequestMasterDTO>(requestMaster);
+                obj.HealthFacilityName = Facility.FacilityName;
+                return obj;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+
+
         public async Task<List<RequestMasterDTO>> GetApprovedRequestsList()
         {
             try
@@ -393,8 +397,13 @@ namespace InventoryFlow.Service.Services
         {
             try
             {
-                var requestListforUser = await _uowRequestMaster.Repository.GetALL(x => x.IsActive == true && x.CreatedBy == _userDataService.GetUserId()).ToListAsync();
+                var requestListforUser = await _uowRequestMaster.Repository.GetALL(x => x.IsActive == true && x.UserHfId == _userDataService.GetUserHFId()).ToListAsync();
                 var obj = _mapper.Map<List<RequestMasterDTO>>(requestListforUser);
+                foreach (var o in obj)
+                {
+                    var healthFacility = await _uowHealthFacilties.Repository.GetALL(x => x.Id == o.UserHfId).FirstOrDefaultAsync();
+                    o.HealthFacilityName = healthFacility?.FacilityName;
+                }
                 return obj;
             }
             catch (Exception)
@@ -433,7 +442,10 @@ namespace InventoryFlow.Service.Services
                     obj.UpdatedAt = DateTime.Now;
                     obj.UpdatedBy = _userDataService.GetUserId();
                     if (obj.Quantity <= 0)
+                    {
+                        obj.IsActive = false;
                         obj.InStock = false;
+                    }
                     var objtoInsert = _mapper.Map<Stock>(obj);
                     _uowStock.Detach(stockToEditQuantity);
                     _uowStock.Repository.Update(objtoInsert);

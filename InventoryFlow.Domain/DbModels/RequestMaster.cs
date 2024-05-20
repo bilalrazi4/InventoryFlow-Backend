@@ -7,6 +7,8 @@ public partial class RequestMaster
 {
     public int Id { get; set; }
 
+    public string? RequestIdentifier { get; set; }
+
     public string? AdminId { get; set; }
 
     public string? RequestStatus { get; set; }

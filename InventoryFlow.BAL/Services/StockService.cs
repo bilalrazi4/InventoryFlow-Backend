@@ -98,7 +98,7 @@ namespace InventoryFlow.Service.Services
         {
             try
             {
-                var stock = await _uowStock.Repository.GetALL(x => x.IsActive == true && x.InStock==true).ToListAsync();
+                var stock = await _uowStock.Repository.GetALL(x => x.IsActive == true && x.InStock==true).OrderBy(x=>x.CreatedAt).ToListAsync();
                 var obj = _mapper.Map<List<StockDTO>>(stock);
                 return new ResponseDTO<List<StockDTO>> { Status = true, Message ="Stock record fetched", Data = obj };
             }
@@ -120,7 +120,7 @@ namespace InventoryFlow.Service.Services
                 var result = conn.Query<StockWithNamesDto>(
                     "StockListWithNames",
                     commandType: CommandType.StoredProcedure
-                ).ToList();
+                ).OrderByDescending(x => x.CreatedAt).ToList();
                 //var stock = await _uowStock.Repository.GetALL(x => x.IsActive == true && x.InStock == true).ToListAsync();
                 var obj = _mapper.Map<List<StockWithNamesDto>>(result);
                 return new ResponseDTO<List<StockWithNamesDto>> { Status = true, Message = "Stock record fetched", Data = obj };
