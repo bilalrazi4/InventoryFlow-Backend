@@ -15,7 +15,7 @@ namespace InventoryFlow.Domain.Repositories
         public GenericRepository(DbContext context)
         {
             this.context = context;
-            this.dbSet = context.Set<TEntity>();
+            dbSet = context.Set<TEntity>();
         }
 
 
@@ -54,16 +54,6 @@ namespace InventoryFlow.Domain.Repositories
             }
             return dbSet.Count(filter);
         }
-
-        public virtual double GetSum(Expression<Func<TEntity, bool>> filter, Expression<Func<TEntity, double>> sum)
-        {
-            if (filter == null)
-            {
-                return dbSet.Sum(sum);
-            }
-            return dbSet.Where(filter).Sum(sum);
-        }
-
         public virtual async Task<TEntity?> GetById(object id)
         {
             return await dbSet.FindAsync(id);
@@ -91,8 +81,12 @@ namespace InventoryFlow.Domain.Repositories
         public virtual void Update(TEntity entityToUpdate)
         {
             dbSet.Attach(entityToUpdate);
-            
+
             context.Entry(entityToUpdate).State = EntityState.Modified;
+        }
+        public void UpdateRange(IEnumerable<TEntity> entities)
+        {
+            dbSet.UpdateRange(entities);
         }
 
 

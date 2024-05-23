@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using InventoryFlow.Domain.DbModels;
 using InventoryFlow.Domain.Repositories;
 using InventoryFlow.Service.Services;
 using InventoryFlow;
@@ -96,7 +95,6 @@ app.UseSpaStaticFiles(new StaticFileOptions()
         context.Context.Response.Headers.Append("Expires", "-1");
     }
 });
-
 app.UseSpa(spa =>
 {
     spa.Options.SourcePath = "app";
@@ -113,6 +111,5 @@ app.UseSpa(spa =>
         }
     };
 });
-
 app.MapControllers();
 app.Run();

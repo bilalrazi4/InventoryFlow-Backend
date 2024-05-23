@@ -56,10 +56,10 @@ namespace InventoryFlow.Service.Services
 
 
                 //this is so that i can add the requestIdentifier against the request I just inserted
-                
+
 
                 var initials = await GetInitials();
-                newRequestMaster.RequestIdentifier = initials+ newRequestMaster.Id;
+                newRequestMaster.RequestIdentifier = initials + newRequestMaster.Id;
                 _uowRequestMaster.Repository.Update(newRequestMaster);
                 await _uowRequestMaster.SaveAsync();
 
@@ -89,7 +89,7 @@ namespace InventoryFlow.Service.Services
         public async Task<string> GetInitials()
         {
             var userFacility = await _uowHealthFacilties.Repository.GetALL(x => x.Id == _userDataService.GetUserHFId()).FirstOrDefaultAsync();
-            
+
             if (string.IsNullOrEmpty(userFacility.FacilityName))
                 return string.Empty;
 
@@ -324,7 +324,7 @@ namespace InventoryFlow.Service.Services
         {
             try
             {
-                var requestsDetail = await _uowRequest.Repository.GetALL(x=> x.RequestId == RequestMaserId && x.Remarks== "product has been dispensed").ToListAsync();
+                var requestsDetail = await _uowRequest.Repository.GetALL(x => x.RequestId == RequestMaserId && x.Remarks == "product has been dispensed").ToListAsync();
                 var obj = _mapper.Map<List<RequestDTO>>(requestsDetail);
                 return obj;
             }
@@ -337,10 +337,10 @@ namespace InventoryFlow.Service.Services
         {
             try
             {
-                var requestMaster = await _uowRequestMaster.Repository.GetALL(x=>x.Id== RequestMaserId).FirstOrDefaultAsync();
+                var requestMaster = await _uowRequestMaster.Repository.GetALL(x => x.Id == RequestMaserId).FirstOrDefaultAsync();
 
                 var Facility = await _uowHealthFacilties.Repository.GetALL(x => x.Id == requestMaster.UserHfId).FirstOrDefaultAsync();
-                
+
                 var obj = _mapper.Map<RequestMasterDTO>(requestMaster);
                 obj.HealthFacilityName = Facility.FacilityName;
                 return obj;
@@ -485,6 +485,161 @@ namespace InventoryFlow.Service.Services
             }
 
         }
+
+        //public async Task<bool> AcceptTheRequest(int Requestid)
+        //{
+        //    using (var transaction = _uowStock.GetDbContext().Database.BeginTransaction())
+        //        try
+        //        {
+
+        //            var requestList = await _uowRequest.Repository.GetALL(x => x.RequestId == Requestid).ToListAsync();
+        //            var batchList = await _uowStockOut.Repository.GetALL(x => x.RequestId == Requestid).ToListAsync();
+        //            List<Stock> stockListToUpdate = [];
+        //            foreach (var batch in batchList)
+        //            {
+        //                var stockToEditQuantity = await _uowStock.Repository.GetALL(x => x.Id == batch.StockId).FirstOrDefaultAsync();
+        //                var obj = _mapper.Map<StockDTO>(stockToEditQuantity);
+        //                if (obj.Quantity >= batch.ApprovedQuantity)
+        //                    obj.Quantity -= batch.ApprovedQuantity;
+        //                obj.UpdatedAt = DateTime.Now;
+        //                obj.UpdatedBy = _userDataService.GetUserId();
+        //                if (obj.Quantity <= 0)
+        //                {
+        //                    obj.IsActive = false;
+        //                    obj.InStock = false;
+        //                }
+        //                var objtoInsert = _mapper.Map<Stock>(obj);
+        //                _uowStock.Detach(stockToEditQuantity);
+        //                stockListToUpdate.Add(objtoInsert);
+        //                // _uowStock.Detach(stockToEditQuantity);
+        //                //_uowStock.Repository.Update(objtoInsert);
+        //                //await _uowStock.SaveAsync();
+        //            }
+        //            _uowStock.Repository.UpdateRange(stockListToUpdate);
+        //            await _uowStock.SaveAsync();
+
+
+        //            List<Request> requestListToUpdate = [];
+        //            foreach (var request in requestList)
+        //            {
+        //                var requestToSetActiveFalse = await _uowRequest.Repository.GetALL(x => x.Id == request.Id).FirstOrDefaultAsync();
+        //                var obj = _mapper.Map<RequestDTO>(requestToSetActiveFalse);
+        //                obj.IsActive = false;
+        //                obj.Remarks = "product has been dispensed";
+        //                var objtoInsert = _mapper.Map<Request>(obj);
+        //                requestListToUpdate.Add(objtoInsert);
+        //                //_uowRequest.Detach(requestToSetActiveFalse);
+        //                //  _uowRequest.Detach(requestToSetActiveFalse);
+        //                // _uowRequest.Repository.Update(objtoInsert);
+        //                // await _uowRequest.SaveAsync();
+        //            }
+        //            _uowRequest.Repository.UpdateRange(requestListToUpdate);
+        //            await _uowRequest.SaveAsync();
+
+        //            var requestToAccept = await _uowRequestMaster.Repository.GetALL(x => x.Id == Requestid).FirstOrDefaultAsync();
+        //            var _obj = _mapper.Map<RequestMasterDTO>(requestToAccept);
+        //            _obj.Remarks = "Request has been Accepted";
+        //            _obj.RequestStatus = "Accepted";
+        //            var _objtoInsert = _mapper.Map<RequestMaster>(_obj);
+        //            //  _uowRequestMaster.Detach(requestToAccept);
+        //            _uowRequestMaster.Repository.Update(_objtoInsert);
+        //            await _uowRequestMaster.SaveAsync();
+
+        //            await transaction.CommitAsync();
+        //            return true;
+
+        //        }
+        //        catch (Exception)
+        //        {
+        //            await transaction.RollbackAsync();
+        //            throw;
+        //        }
+
+        //}
+
+
+
+        //public async Task<bool> AcceptTheRequest(int Requestid)
+        //{
+        //    using (var transaction = _uowHealthFacilties.GetDbContext().Database.BeginTransaction())
+        //        try
+        //        {
+
+        //            var requestList = await _uowRequest.Repository.GetALL(x => x.RequestId == Requestid).ToListAsync();
+        //            var batchList = await _uowStockOut.Repository.GetALL(x => x.RequestId == Requestid).ToListAsync();
+        //            //getting the stockId's of each batch that are in batchList
+        //            var currentStockIdsList = batchList.Select(x => x.StockId).ToList();
+        //            //getting the stockList through the stockId's that are in stockIdsList that corresponds to each batch/stockItem 
+        //            var currentStockList = await _uowStock.Repository.GetALL(x => currentStockIdsList.Contains(x.Id)).ToListAsync();
+
+        //            List<Stock> stockListToUpdate = [];
+        //            foreach (var batch in batchList)
+        //            {
+        //                var stockToEditQuantity = currentStockList.FirstOrDefault(x => x.Id == batch.StockId);
+        //                var obj = _mapper.Map<StockDTO>(stockToEditQuantity);
+        //                if (obj.Quantity >= batch.ApprovedQuantity)
+        //                    obj.Quantity -= batch.ApprovedQuantity;
+        //                obj.UpdatedAt = DateTime.Now;
+        //                obj.UpdatedBy = _userDataService.GetUserId();
+        //                if (obj.Quantity <= 0)
+        //                {
+        //                    obj.IsActive = false;
+        //                    obj.InStock = false;
+        //                }
+        //                var objtoInsert = _mapper.Map<Stock>(obj);
+        //               // _uowStock.Detach(stockToEditQuantity);
+        //                stockListToUpdate.Add(objtoInsert);
+        //                // _uowStock.Detach(stockToEditQuantity);
+        //                //_uowStock.Repository.Update(objtoInsert);
+        //                //await _uowStock.SaveAsync();
+        //            }
+        //            _uowStock.Repository.UpdateRange(stockListToUpdate);
+        //            await _uowStock.SaveAsync();
+
+
+        //            List<Request> requestListToUpdate = [];
+        //            var currentRequestIdsList = requestList.Select(x => x.Id).ToList();
+        //            var currentRequestList = await _uowRequest.Repository.GetALL(x=>currentRequestIdsList.Contains(x.Id)).ToListAsync();
+        //            foreach (var request in requestList)
+        //            {
+        //                var requestToSetActiveFalse = currentRequestList.FirstOrDefault(x=>x.Id==request.Id);
+        //                var obj = _mapper.Map<RequestDTO>(requestToSetActiveFalse);
+        //                obj.IsActive = false;
+        //                obj.Remarks = "product has been dispensed";
+        //                var objtoInsert = _mapper.Map<Request>(obj);
+        //                requestListToUpdate.Add(objtoInsert);
+        //                //_uowRequest.Detach(requestToSetActiveFalse);
+        //                //  _uowRequest.Detach(requestToSetActiveFalse);
+        //                // _uowRequest.Repository.Update(objtoInsert);
+        //                // await _uowRequest.SaveAsync();
+        //            }
+        //            _uowRequest.Repository.UpdateRange(requestListToUpdate);
+        //            await _uowRequest.SaveAsync();
+
+        //            var requestToAccept = await _uowRequestMaster.Repository.GetALL(x => x.Id == Requestid).FirstOrDefaultAsync();
+        //            var _obj = _mapper.Map<RequestMasterDTO>(requestToAccept);
+        //            _obj.Remarks = "Request has been Accepted";
+        //            _obj.RequestStatus = "Accepted";
+        //            var _objtoInsert = _mapper.Map<RequestMaster>(_obj);
+        //            //  _uowRequestMaster.Detach(requestToAccept);
+        //            _uowRequestMaster.Repository.Update(_objtoInsert);
+        //            await _uowRequestMaster.SaveAsync();
+
+        //            await transaction.CommitAsync();
+        //            return true;
+
+        //        }
+        //        catch (Exception)
+        //        {
+        //            await transaction.RollbackAsync();
+        //            throw;
+        //        }
+
+        //}
+
+
+
+
 
         public async Task<Invoice> GetInvoiceAgainstTheApprovedRequest(RequestMasterDTO request)
         {
