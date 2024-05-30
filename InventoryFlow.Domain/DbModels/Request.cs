@@ -13,6 +13,8 @@ public partial class Request
 
     public decimal RequestedQuantity { get; set; }
 
+    public decimal UpdatedQuantity { get; set; }
+
     public decimal PricePerUnit { get; set; }
 
     public decimal TotalPrice { get; set; }

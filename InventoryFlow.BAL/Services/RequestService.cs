@@ -21,11 +21,8 @@ namespace InventoryFlow.Service.Services
         private readonly UnitOfWork<StockOut> _uowStockOut;
         private readonly UnitOfWork<Invoice> _uowInvoice;
         private readonly UnitOfWork<Attachment> _uowAttachment;
-
         private readonly IMapper _mapper;
         private readonly UserDataService _userDataService;
-
-
         public RequestService(UnitOfWork<Request> _uowRequest, IMapper _mapper, UserDataService _userDataService,
             UnitOfWork<RequestMaster> _uowRequestMaster, UnitOfWork<HealthFacilitiesNew> _uowHealthFacilties,
             UnitOfWork<Stock> _uowStock, UnitOfWork<StockOut> _uowStockOut, UnitOfWork<Invoice> _uowInvoice,
@@ -85,7 +82,6 @@ namespace InventoryFlow.Service.Services
                 throw;
             }
         }
-
         public async Task<string> GetInitials()
         {
             var userFacility = await _uowHealthFacilties.Repository.GetALL(x => x.Id == _userDataService.GetUserHFId()).FirstOrDefaultAsync();
@@ -116,7 +112,6 @@ namespace InventoryFlow.Service.Services
                 Message = "Invoice Generated"
             };
         }
-
         public async Task<ResponseDTO<string>> UploadImage(IFormFile imageFile, string additionalDetails, int Requestid)
         {
             // Convert the image file to a byte array
@@ -150,7 +145,7 @@ namespace InventoryFlow.Service.Services
                 Message = "Image Saved"
             };
         }
-        public async Task<ResponseDTO<RequestDTO>> AcceptRequest(List<RequestDTO> pendingRequestListToApprove)
+        public async Task<ResponseDTO<RequestDTO>> ApprovePendingRequest(List<RequestDTO> pendingRequestListToApprove)
         {
             //declaring this requestId so that I can update the status of Request against all these products in the Master Table
             int requestIdToUpdate = 0;
@@ -218,8 +213,127 @@ namespace InventoryFlow.Service.Services
                 Message = "Transaction commited",
             };
         }
+        public async Task<bool> ApproveSingleProduct(List<RequestDTO> pendingRequestListToApprove)
+        {
+            //declaring this requestId so that I can update the status of Request against all these products in the Master Table
+            int requestIdToUpdate = 0;
+            foreach (var product in pendingRequestListToApprove)
+            {
+                var batchList = _uowStock.Repository.GetALL(x => x.IsActive == true && x.ProductId == product.ProductId).OrderBy(x => x.ExpiryDate).ToList();
+                var totalQuantity = batchList.Sum(batch => batch.Quantity);//for calculating the sum of all the quantities in the batchlist for the specific product
+                var OriginalRequestedQuantity = product.RequestedQuantity;
 
+                //retrieving this requestId so that I can update the status of Request against all these products in the Master Table
+                requestIdToUpdate = product.RequestId;
 
+                if (totalQuantity >= OriginalRequestedQuantity)
+                    foreach (var batch in batchList)
+                    {
+                        if (product.RequestedQuantity != 0)
+                        {
+                            var stockOutProduct = new StockOut();
+                            //batch.Quantity <= product.RequestedQuantity
+                            //what if product.requestQuantity > batch.Quantity and vice versa
+                            stockOutProduct.Rate = product.PricePerUnit;
+                            stockOutProduct.RequestId = product.RequestId;
+                            //requestedQuantity should be the original RequestedQuantity
+                            stockOutProduct.RequestedQuantity = OriginalRequestedQuantity;
+                            stockOutProduct.LastAvailableQuantity = batch.Quantity;
+                            stockOutProduct.TotalPrice = product.TotalPrice;
+                            stockOutProduct.Batch = batch.Batch;
+                            stockOutProduct.CreatedAt = DateTime.Now;
+                            stockOutProduct.CreatedBy = _userDataService.GetUserId();
+                            stockOutProduct.IsActive = true;
+                            if (batch.Quantity <= product.RequestedQuantity)
+                            {
+                                product.RequestedQuantity -= batch.Quantity;
+                                stockOutProduct.ApprovedQuantity = batch.Quantity;
+                                stockOutProduct.StockId = batch.Id;
+                                await _uowStockOut.Repository.InsertAsync(stockOutProduct);
+                            }
+                            else
+                            {
+                                //batch.Quantity > product.RequestedQuantity
+                                stockOutProduct.StockId = batch.Id;
+                                var quantityLeftInBatch = batch.Quantity - product.RequestedQuantity;
+                                stockOutProduct.ApprovedQuantity = product.RequestedQuantity;
+                                product.RequestedQuantity -= product.RequestedQuantity;
+                                await _uowStockOut.Repository.InsertAsync(stockOutProduct);
+                            }
+                        }
+                    }
+            }
+            await _uowStockOut.SaveAsync();
+            return true;
+        }
+        public async Task<ResponseDTO<RequestDTO>> CustomApprovePendingRequest(CustomApproveRequestDto custom)
+        {
+            int requestIdToUpdate = 0;
+            foreach (var req in custom.RequestDetailList)
+            {
+                if (req.UpdatedQuantity <= 0)
+                {
+                    List<RequestDTO> singleRequest = [];
+                    singleRequest.Add(req);
+                    await ApproveSingleProduct(singleRequest);
+                }
+                else
+                {
+                    requestIdToUpdate = req.RequestId;
+                    var existingRequestDetail = await _uowRequest.Repository.GetALL(x => x.Id == req.Id && x.IsActive == true).FirstOrDefaultAsync();
+                    if (existingRequestDetail != null)
+                    {
+                        existingRequestDetail.UpdatedQuantity = req.UpdatedQuantity;
+                        existingRequestDetail.Remarks = req.Remarks;
+                        existingRequestDetail.TotalPrice = req.UpdatedQuantity * existingRequestDetail.PricePerUnit;
+                        existingRequestDetail.UpdatedAt = DateTime.Now;
+                        existingRequestDetail.UpdatedBy = _userDataService.GetUserId();
+                        _uowRequest.Repository.Update(existingRequestDetail);
+                    }
+                }
+            }
+            await _uowRequest.SaveAsync();
+
+            foreach (var stock in custom.StockList)
+            {
+                var stockOutObj = _mapper.Map<StockOut>(stock);
+                var existingStock = await _uowStock.Repository.GetALL(x => x.Id == stock.Id).FirstOrDefaultAsync();
+                if (existingStock != null)
+                {
+                    stockOutObj.LastAvailableQuantity = existingStock.Quantity;
+                    if (existingStock.Quantity >= stock.updatedQty)
+                        stockOutObj.ApprovedQuantity = stock.updatedQty;
+                    else
+                        return new ResponseDTO<RequestDTO>
+                        {
+                            Status = false,
+                            Message = "Batch number -> " + stock.Batch + " doesn't have " + stock.updatedQty + ". Available Quantity in this Stock is -> " + existingStock.Quantity
+                        };
+                }
+                stockOutObj.Id = 0;
+                stockOutObj.StockId = stock.Id;
+                stockOutObj.RequestId = requestIdToUpdate;
+                await _uowStockOut.Repository.InsertAsync(stockOutObj);
+            }
+            await _uowStockOut.SaveAsync();
+
+            var request = await _uowRequestMaster.Repository.GetById(requestIdToUpdate);
+            if (request != null)
+            {
+                request.UpdatedBy = _userDataService.GetUserId();
+                request.UpdatedAt = DateTime.Now;
+                request.RequestStatus = "Approved";
+                request.AdminId = _userDataService.GetUserId();
+                request.ChequeStatus = false;
+                _uowRequestMaster.Repository.Update(request);
+                await _uowRequestMaster.SaveAsync();
+            }
+            return new ResponseDTO<RequestDTO>
+            {
+                Status = true,
+                Message = "Request number " + request?.RequestIdentifier + "  has been approved",
+            };
+        }
         public async Task<ResponseDTO<RequestDTO>> RejectRequest(List<RequestDTO> pendingRequestListToApprove, string Remarks)
         {
             //declaring this requestId so that I can update the status of Request against all these products in the Master Table
@@ -253,39 +367,6 @@ namespace InventoryFlow.Service.Services
                 Message = "Request Rejected",
             };
         }
-
-
-        //public async Task<RequestDTO> RejectRequest(RequestDTO request)
-        //{
-        //    return null;
-        //}
-        //public async Task<List<>> GetAll()
-        //{
-        //    try
-        //    {
-        //        var requests = await _uowRequestMaster.Repository.GetALL(x => x.IsActive == true).ToListAsync();
-        //        var obj = _mapper.Map<List<RequestMasterDTO>>(requests);
-        //        return obj;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
-
-        //public async Task<List<RequestDTO>> GetPendingRequestsList()
-        //{
-        //    try
-        //    {
-        //        var requests = await _uowRequest.Repository.GetALL(x => x.IsActive == true && x.Requ== "Pending").ToListAsync();
-        //        var obj = _mapper.Map<List<RequestDTO>>(requests);
-        //        return obj;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
         public async Task<List<RequestMasterDTO>> GetPendingRequestsList()
         {
             try
@@ -311,6 +392,8 @@ namespace InventoryFlow.Service.Services
             try
             {
                 var requestsDetail = await _uowRequest.Repository.GetALL(x => x.IsActive == true && x.RequestId == RequestMaserId).ToListAsync();
+
+
                 var obj = _mapper.Map<List<RequestDTO>>(requestsDetail);
                 return obj;
             }
@@ -319,7 +402,6 @@ namespace InventoryFlow.Service.Services
                 throw;
             }
         }
-
         public async Task<List<RequestDTO>> GetAcceptedRequestsDetailListForUser(int RequestMaserId)
         {
             try
@@ -350,9 +432,19 @@ namespace InventoryFlow.Service.Services
                 throw;
             }
         }
-
-
-
+        public async Task<List<StockDTO>> GetBatchListByProduct(int ProductId)
+        {
+            try
+            {
+                var batchList = await _uowStock.Repository.GetALL(x => x.ProductId == ProductId && x.IsActive == true && x.InStock == true).OrderBy(x => x.ExpiryDate).ToListAsync();
+                var obj = _mapper.Map<List<StockDTO>>(batchList);
+                return obj;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public async Task<List<RequestMasterDTO>> GetApprovedRequestsList()
         {
             try
@@ -372,7 +464,6 @@ namespace InventoryFlow.Service.Services
                 throw;
             }
         }
-
         public async Task<List<RequestMasterDTO>> GetRejectedRequestsList()
         {
             try
@@ -392,7 +483,6 @@ namespace InventoryFlow.Service.Services
                 throw;
             }
         }
-
         public async Task<List<RequestMasterDTO>> GetRequestsListForUser()
         {
             try
@@ -411,8 +501,6 @@ namespace InventoryFlow.Service.Services
                 throw;
             }
         }
-
-
         public async Task<Attachment> GetImageAndChequeDetails(int Requestid)
         {
             try
@@ -426,7 +514,6 @@ namespace InventoryFlow.Service.Services
             }
 
         }
-
         public async Task<bool> AcceptTheRequest(int Requestid)
         {
             try
@@ -636,11 +723,6 @@ namespace InventoryFlow.Service.Services
         //        }
 
         //}
-
-
-
-
-
         public async Task<Invoice> GetInvoiceAgainstTheApprovedRequest(RequestMasterDTO request)
         {
             try

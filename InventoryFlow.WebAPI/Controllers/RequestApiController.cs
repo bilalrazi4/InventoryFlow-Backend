@@ -2,6 +2,7 @@
 using InventoryFlow.Domain.DTO_s;
 using InventoryFlow.Domain.DTO_s.RequestDto_s;
 using InventoryFlow.Domain.DTO_s.ResponseDTO_s;
+using InventoryFlow.Domain.DTO_s.StockDto_s;
 using InventoryFlow.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,7 +54,15 @@ namespace InventoryFlow.Controllers
         [Route("ApprovePendingRequest")]
         public async Task<IActionResult> ApprovePendingRequest(List<RequestDTO> pendingRequestListToApprove)
         {
-            var obj = await _requestService.AcceptRequest(pendingRequestListToApprove);
+            var obj = await _requestService.ApprovePendingRequest(pendingRequestListToApprove);
+            return Ok(new ResponseDTO<RequestDTO> { Status = obj.Status, Message = obj.Message });
+        }
+
+        [HttpPost]
+        [Route("CustomApprovePendingRequest")]
+        public async Task<IActionResult> CustomApprovePendingRequest(CustomApproveRequestDto custom)
+        {            
+            var obj = await _requestService.CustomApprovePendingRequest(custom);
             return Ok(new ResponseDTO<RequestDTO> { Status = obj.Status, Message = obj.Message });
         }
 
@@ -126,8 +135,13 @@ namespace InventoryFlow.Controllers
             var obj = await _requestService.GetRequestsListForUser();
             return Ok(new ResponseDTO<List<RequestMasterDTO>> { Status = true, Message = "Record Fetched Successfully", Data = obj });
         }
-
-
+        [HttpGet]
+        [Route("GetBatchListByProduct/{ProductId}")]
+        public async Task<IActionResult> GetBatchListByProduct(int ProductId)
+        {
+            var obj = await _requestService.GetBatchListByProduct(ProductId);
+            return Ok(new ResponseDTO<List<StockDTO>> { Status = true, Message = "Record Fetched Successfully", Data = obj });
+        }
         [HttpGet]
         [Route("GetImageAndChequeDetails/{RequestId}")]
         public async Task<IActionResult> GetImageAndChequeDetails(int RequestId)

@@ -10,7 +10,7 @@ namespace InventoryFlow.Service.Common
 {
     public class AutoMapperProfiles
     {
-        public class ProductProfile:autoMapper.Profile
+        public class ProductProfile : autoMapper.Profile
         {
             public ProductProfile()
             {
@@ -38,6 +38,7 @@ namespace InventoryFlow.Service.Common
                 CreateMap<DbModels.Stock, StockDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
                 CreateMap<DbModels.StockOut, StockOutDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
                 CreateMap<DbModels.StockOut, RequestDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+                CreateMap<DbModels.StockOut, StockForCustomApproveDto>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
             }
 
@@ -47,7 +48,7 @@ namespace InventoryFlow.Service.Common
             public GeoLevelProfile()
             {
                 CreateMap<DbModels.GeoLevel, GeoLevelsDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
-               
+
             }
         }
         public class HealthFacilityNewProfile : autoMapper.Profile

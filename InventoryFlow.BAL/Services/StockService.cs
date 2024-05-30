@@ -51,7 +51,18 @@ namespace InventoryFlow.Service.Services
                         };
                     }
                 }
-                
+
+                var existingStockWithSameBatch = await _uowStock.Repository.GetALL(batch => batch.Batch == stock.Batch).FirstOrDefaultAsync();
+                if (existingStockWithSameBatch != null && stock.Id==0)
+                {
+                    return new ResponseDTO<StockDTO>
+                    {
+                        Status = false,
+                        Message = "Stock with this batch name already exist, Please change the Batch",
+                    };
+                }
+
+
 
                 //this is to update the existing stock 
                 var existingStock = await _uowStock.Repository.GetById(stock.Id);

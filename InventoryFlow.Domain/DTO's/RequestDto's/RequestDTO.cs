@@ -13,6 +13,7 @@ namespace InventoryFlow.Domain.DTO_s.RequestDto_s
         public int StockId { get; set; }
         public int ProductId { get; set; }
         public decimal RequestedQuantity { get; set; }
+        public decimal UpdatedQuantity { get; set; }
         public decimal PricePerUnit { get; set; }
         public decimal TotalPrice { get; set; }
         public string? Remarks { get; set; }
@@ -22,7 +23,5 @@ namespace InventoryFlow.Domain.DTO_s.RequestDto_s
         public DateTime? UpdatedAt { get; set; }
         public bool? IsActive { get; set; }
         public int RequestId { get; set; }
-
-
     }
 }
